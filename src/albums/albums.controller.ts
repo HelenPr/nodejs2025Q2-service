@@ -9,32 +9,32 @@ export class AlbumsController {
   constructor(private readonly albumsService: AlbumsService) {}
 
   @Get()
-  getAllAlbums(): Album[] {
+  async getAllAlbums(): Promise<Album[]> {
     return this.albumsService.getAllAlbums();
   }
 
   @Get(':id')
-  getAlbumById(@Param('id') id: string): Album {
+  async getAlbumById(@Param('id') id: string): Promise<Album> {
     return this.albumsService.getAlbumById(id);
   }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  createAlbum(@Body() createAlbumDto: CreateAlbumDto): Album {
+  async createAlbum(@Body() createAlbumDto: CreateAlbumDto): Promise<Album> {
     return this.albumsService.createAlbum(createAlbumDto);
   }
 
   @Put(':id')
-  updateAlbum(
+  async updateAlbum(
     @Param('id') id: string,
     @Body() updateAlbumDto: UpdateAlbumDto,
-  ): Album {
+  ): Promise<Album> {
     return this.albumsService.updateAlbum(id, updateAlbumDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteAlbum(@Param('id') id: string): void {
-    this.albumsService.deleteAlbum(id);
+  async deleteAlbum(@Param('id') id: string): Promise<void> {
+    await this.albumsService.deleteAlbum(id);
   }
 } 
