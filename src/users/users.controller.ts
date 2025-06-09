@@ -9,32 +9,32 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  getAllUsers(): UserResponse[] {
+  async getAllUsers(): Promise<UserResponse[]> {
     return this.usersService.getAllUsers();
   }
 
   @Get(':id')
-  getUserById(@Param('id') id: string): UserResponse {
+  async getUserById(@Param('id') id: string): Promise<UserResponse> {
     return this.usersService.getUserById(id);
   }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  createUser(@Body() createUserDto: CreateUserDto): UserResponse {
+  async createUser(@Body() createUserDto: CreateUserDto): Promise<UserResponse> {
     return this.usersService.createUser(createUserDto);
   }
 
   @Put(':id')
-  updateUserPassword(
+  async updateUserPassword(
     @Param('id') id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
-  ): UserResponse {
+  ): Promise<UserResponse> {
     return this.usersService.updateUserPassword(id, updatePasswordDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteUser(@Param('id') id: string): void {
-    this.usersService.deleteUser(id);
+  async deleteUser(@Param('id') id: string): Promise<void> {
+    await this.usersService.deleteUser(id);
   }
 } 
