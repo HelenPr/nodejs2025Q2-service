@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
-import { randomUUID } from 'crypto';
+import { PrismaService } from '../prisma/prisma.service';
 import { Album } from './interfaces/album.interface';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
@@ -7,9 +7,8 @@ import { FavoritesService } from '../favorites/favorites.service';
 
 @Injectable()
 export class AlbumsService {
-  private albums: Album[] = [];
-
   constructor(
+    private prisma: PrismaService,
     @Inject(forwardRef(() => FavoritesService))
     private readonly favoritesService: FavoritesService,
   ) {}
@@ -19,16 +18,26 @@ export class AlbumsService {
     return uuidRegex.test(id);
   }
 
-  getAllAlbums(): Album[] {
-    return this.albums;
+  async getAllAlbums(): Promise<Album[]> {
+    return this.prisma.album.findMany({
+      include: {
+        artist: true,
+      },
+    });
   }
 
-  getAlbumById(id: string): Album {
+  async getAlbumById(id: string): Promise<Album> {
     if (!this.isValidUUID(id)) {
       throw new BadRequestException('Invalid album ID format');
     }
 
-    const album = this.albums.find(album => album.id === id);
+    const album = await this.prisma.album.findUnique({
+      where: { id },
+      include: {
+        artist: true,
+      },
+    });
+
     if (!album) {
       throw new NotFoundException('Album not found');
     }
@@ -36,59 +45,68 @@ export class AlbumsService {
     return album;
   }
 
-  createAlbum(createAlbumDto: CreateAlbumDto): Album {
+  async createAlbum(createAlbumDto: CreateAlbumDto): Promise<Album> {
     const { name, year, artistId } = createAlbumDto;
     
-    const newAlbum: Album = {
-      id: randomUUID(),
-      name,
-      year,
-      artistId,
-    };
-
-    this.albums.push(newAlbum);
-    return newAlbum;
+    return this.prisma.album.create({
+      data: {
+        name,
+        year,
+        artistId,
+      },
+      include: {
+        artist: true,
+      },
+    });
   }
 
-  updateAlbum(id: string, updateAlbumDto: UpdateAlbumDto): Album {
+  async updateAlbum(id: string, updateAlbumDto: UpdateAlbumDto): Promise<Album> {
     if (!this.isValidUUID(id)) {
       throw new BadRequestException('Invalid album ID format');
     }
 
-    const albumIndex = this.albums.findIndex(album => album.id === id);
-    if (albumIndex === -1) {
-      throw new NotFoundException('Album not found');
-    }
-
-    const updatedAlbum = {
-      ...this.albums[albumIndex],
-      ...updateAlbumDto,
-    };
-
-    this.albums[albumIndex] = updatedAlbum;
-    return updatedAlbum;
-  }
-
-  deleteAlbum(id: string): void {
-    if (!this.isValidUUID(id)) {
-      throw new BadRequestException('Invalid album ID format');
-    }
-
-    const albumIndex = this.albums.findIndex(album => album.id === id);
-    if (albumIndex === -1) {
-      throw new NotFoundException('Album not found');
-    }
-
-    this.albums.splice(albumIndex, 1);
-    this.favoritesService.handleAlbumDeletion(id);
-  }
-
-  handleArtistDeletion(artistId: string): void {
-    this.albums = this.albums.map(album => {
-      if (album.artistId === artistId) {
-        return { ...album, artistId: null };
+    try {
+      return await this.prisma.album.update({
+        where: { id },
+        data: {
+          name: updateAlbumDto.name,
+          year: updateAlbumDto.year,
+          artistId: updateAlbumDto.artistId,
+        },
+        include: {
+          artist: true,
+        },
+      });
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException('Album not found');
       }
-      return album;
+      throw error;
+    }
+  }
+
+  async deleteAlbum(id: string): Promise<void> {
+    if (!this.isValidUUID(id)) {
+      throw new BadRequestException('Invalid album ID format');
+    }
+
+    try {
+      await this.prisma.album.delete({
+        where: { id },
+      });
+      await this.favoritesService.handleAlbumDeletion(id);
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException('Album not found');
+      }
+      throw error;
+    }
+  }
+
+  async handleArtistDeletion(artistId: string): Promise<void> {
+    await this.prisma.album.updateMany({
+      where: { artistId },
+      data: { artistId: null },
     });
   }
 } 
