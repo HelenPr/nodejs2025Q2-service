@@ -9,32 +9,32 @@ export class ArtistsController {
   constructor(private readonly artistsService: ArtistsService) {}
 
   @Get()
-  getAllArtists(): Artist[] {
+  async getAllArtists(): Promise<Artist[]> {
     return this.artistsService.getAllArtists();
   }
 
   @Get(':id')
-  getArtistById(@Param('id') id: string): Artist {
+  async getArtistById(@Param('id') id: string): Promise<Artist> {
     return this.artistsService.getArtistById(id);
   }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  createArtist(@Body() createArtistDto: CreateArtistDto): Artist {
+  async createArtist(@Body() createArtistDto: CreateArtistDto): Promise<Artist> {
     return this.artistsService.createArtist(createArtistDto);
   }
 
   @Put(':id')
-  updateArtist(
+  async updateArtist(
     @Param('id') id: string,
     @Body() updateArtistDto: UpdateArtistDto,
-  ): Artist {
+  ): Promise<Artist> {
     return this.artistsService.updateArtist(id, updateArtistDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteArtist(@Param('id') id: string): void {
-    this.artistsService.deleteArtist(id);
+  async deleteArtist(@Param('id') id: string): Promise<void> {
+    await this.artistsService.deleteArtist(id);
   }
 } 
