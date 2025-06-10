@@ -12,8 +12,8 @@ model User {
   login String
   password String
   version Int @default(1)
-  createdAt Int @default(autoincrement())
-  updatedAt Int @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   favorites Favorite[]
 }
 
@@ -21,6 +21,9 @@ model Artist {
   id String @id @default(uuid())
   name String
   grammy Boolean
+  version Int @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   albums Album[]
   tracks Track[]
 }
@@ -30,6 +33,9 @@ model Album {
   name String
   year Int
   artistId String
+  version Int @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   artist Artist @relation(fields: [artistId], references: [id])
   tracks Track[]
   favorites Favorite[]
@@ -43,6 +49,9 @@ model Track {
   artist Artist? @relation(fields: [artistId], references: [id])
   albumId String?
   album Album? @relation(fields: [albumId], references: [id])
+  version Int @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   favorites Favorite[]
 }
 
