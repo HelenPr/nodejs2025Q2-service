@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=home_library
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/home_library?schema=public
+      - PRISMA_CLIENT_CONNECTION_LIMIT=5
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - home-library-network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=home_library
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_logs:/var/log/postgresql
+    networks:
+      - home-library-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+networks:
+  home-library-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  postgres_logs:
