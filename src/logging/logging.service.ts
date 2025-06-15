@@ -1,13 +1,6 @@
-import { Injectable, LoggerService, Logger } from '@nestjs/common';
+import { Injectable, LoggerService, Logger, LogLevel } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
-
-export enum LogLevel {
-  ERROR = 'error',
-  WARN = 'warn',
-  INFO = 'info',
-  DEBUG = 'debug',
-}
 
 @Injectable()
 export class LoggingService implements LoggerService {
@@ -16,11 +9,15 @@ export class LoggingService implements LoggerService {
   private errorLogStream: fs.WriteStream;
   private readonly maxFileSize: number;
   private readonly logDir: string;
+  private readonly logLevels: LogLevel[];
 
   constructor() {
     this.logger = new Logger();
     this.logDir = process.env.LOG_DIR || 'logs';
     this.maxFileSize = parseInt(process.env.LOG_MAX_FILE_SIZE || '1024', 10);
+
+    const configuredLevel = process.env.LOG_LEVEL?.toLowerCase() || 'log';
+    this.logLevels = this.getLogLevels(configuredLevel);
 
     if (!fs.existsSync(this.logDir)) {
       fs.mkdirSync(this.logDir, { recursive: true });
@@ -37,6 +34,12 @@ export class LoggingService implements LoggerService {
       const errorMessage = reason instanceof Error ? reason.message : String(reason);
       this.error('Unhandled Rejection', errorMessage);
     });
+  }
+
+  private getLogLevels(level: string): LogLevel[] {
+    const allLevels: LogLevel[] = ['error', 'warn', 'log', 'debug', 'verbose'];
+    const levelIndex = allLevels.indexOf(level as LogLevel);
+    return levelIndex >= 0 ? allLevels.slice(0, levelIndex + 1) : ['error', 'warn', 'log'];
   }
 
   private createLogStream(filename: string): fs.WriteStream {
@@ -101,30 +104,40 @@ export class LoggingService implements LoggerService {
   }
 
   log(message: string, context?: string) {
-    this.logger.log(message, context);
-    this.writeToFile(`[INFO] ${context ? `[${context}] ` : ''}${message}`);
+    if (this.logLevels.includes('log')) {
+      this.logger.log(message, context);
+      this.writeToFile(`[INFO] ${context ? `[${context}] ` : ''}${message}`);
+    }
   }
 
   error(message: string, trace?: string, context?: string) {
-    this.logger.error(message, trace, context);
-    this.writeToFile(
-      `[ERROR] ${context ? `[${context}] ` : ''}${message}${trace ? `\n${trace}` : ''}`,
-      true
-    );
+    if (this.logLevels.includes('error')) {
+      this.logger.error(message, trace, context);
+      this.writeToFile(
+        `[ERROR] ${context ? `[${context}] ` : ''}${message}${trace ? `\n${trace}` : ''}`,
+        true
+      );
+    }
   }
 
   warn(message: string, context?: string) {
-    this.logger.warn(message, context);
-    this.writeToFile(`[WARN] ${context ? `[${context}] ` : ''}${message}`);
+    if (this.logLevels.includes('warn')) {
+      this.logger.warn(message, context);
+      this.writeToFile(`[WARN] ${context ? `[${context}] ` : ''}${message}`);
+    }
   }
 
   debug(message: string, context?: string) {
-    this.logger.debug(message, context);
-    this.writeToFile(`[DEBUG] ${context ? `[${context}] ` : ''}${message}`);
+    if (this.logLevels.includes('debug')) {
+      this.logger.debug(message, context);
+      this.writeToFile(`[DEBUG] ${context ? `[${context}] ` : ''}${message}`);
+    }
   }
 
   verbose(message: string, context?: string) {
-    this.logger.verbose(message, context);
-    this.writeToFile(`[VERBOSE] ${context ? `[${context}] ` : ''}${message}`);
+    if (this.logLevels.includes('verbose')) {
+      this.logger.verbose(message, context);
+      this.writeToFile(`[VERBOSE] ${context ? `[${context}] ` : ''}${message}`);
+    }
   }
 }
