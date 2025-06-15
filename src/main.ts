@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import { LoggingInterceptor } from './logging/logging.interceptor';
 import { LoggingService } from './logging/logging.service';
+import { HttpExceptionFilter } from './logging/http-exception.filter';
 
 async function bootstrap() {
   dotenv.config();
@@ -11,6 +12,7 @@ async function bootstrap() {
   
   const loggingService = app.get(LoggingService);
   app.useGlobalInterceptors(new LoggingInterceptor(loggingService));
+  app.useGlobalFilters(new HttpExceptionFilter(loggingService));
   
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
