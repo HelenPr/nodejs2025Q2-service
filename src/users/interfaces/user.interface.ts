@@ -13,4 +13,4 @@ export interface UserResponse {
   version: number;
   createdAt: Date;
   updatedAt: Date;
-} 
+}

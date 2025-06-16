@@ -14,4 +14,4 @@ export interface Album {
     createdAt: Date;
     updatedAt: Date;
   };
-} 
+}

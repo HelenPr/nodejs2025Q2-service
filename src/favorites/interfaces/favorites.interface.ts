@@ -8,4 +8,4 @@ export interface FavoritesResponse {
   artists: any[];
   albums: any[];
   tracks: any[];
-} 
+}

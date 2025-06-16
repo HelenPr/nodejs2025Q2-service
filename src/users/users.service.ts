@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserResponse } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -10,18 +15,19 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   private isValidUUID(id: string): boolean {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return uuidRegex.test(id);
   }
 
   private mapToResponse(user: any): UserResponse {
-    const { password, ...userResponse } = user;
+    const { ...userResponse } = user;
     return userResponse;
   }
 
   async getAllUsers(): Promise<UserResponse[]> {
     const users = await this.prisma.user.findMany();
-    return users.map(user => this.mapToResponse(user));
+    return users.map((user) => this.mapToResponse(user));
   }
 
   async getUserById(id: string): Promise<UserResponse> {
@@ -42,9 +48,9 @@ export class UsersService {
 
   async createUser(createUserDto: CreateUserDto): Promise<UserResponse> {
     const { login, password } = createUserDto;
-    
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     const newUser = await this.prisma.user.create({
       data: {
         login,
@@ -55,7 +61,10 @@ export class UsersService {
     return this.mapToResponse(newUser);
   }
 
-  async updateUserPassword(id: string, updatePasswordDto: UpdatePasswordDto): Promise<UserResponse> {
+  async updateUserPassword(
+    id: string,
+    updatePasswordDto: UpdatePasswordDto,
+  ): Promise<UserResponse> {
     if (!this.isValidUUID(id)) {
       throw new BadRequestException('Invalid user ID format');
     }
@@ -68,12 +77,18 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    const isPasswordValid = await bcrypt.compare(updatePasswordDto.oldPassword, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      updatePasswordDto.oldPassword,
+      user.password,
+    );
     if (!isPasswordValid) {
       throw new ForbiddenException('Old password is incorrect');
     }
 
-    const hashedNewPassword = await bcrypt.hash(updatePasswordDto.newPassword, 10);
+    const hashedNewPassword = await bcrypt.hash(
+      updatePasswordDto.newPassword,
+      10,
+    );
 
     const updatedUser = await this.prisma.user.update({
       where: { id },
@@ -102,4 +117,4 @@ export class UsersService {
       throw error;
     }
   }
-} 
+}

@@ -31,7 +31,8 @@ export class LoggingService implements LoggerService {
     });
 
     process.on('unhandledRejection', (reason: unknown) => {
-      const errorMessage = reason instanceof Error ? reason.message : String(reason);
+      const errorMessage =
+        reason instanceof Error ? reason.message : String(reason);
       this.error('Unhandled Rejection', errorMessage);
     });
   }
@@ -39,14 +40,15 @@ export class LoggingService implements LoggerService {
   private getLogLevels(level: string): LogLevel[] {
     const allLevels: LogLevel[] = ['error', 'warn', 'log', 'debug', 'verbose'];
     const levelIndex = allLevels.indexOf(level as LogLevel);
-    return levelIndex >= 0 ? allLevels.slice(0, levelIndex + 1) : ['error', 'warn', 'log'];
+    return levelIndex >= 0
+      ? allLevels.slice(0, levelIndex + 1)
+      : ['error', 'warn', 'log'];
   }
 
   private createLogStream(filename: string): fs.WriteStream {
-    return fs.createWriteStream(
-      path.join(this.logDir, filename),
-      { flags: 'a' }
-    );
+    return fs.createWriteStream(path.join(this.logDir, filename), {
+      flags: 'a',
+    });
   }
 
   private rotateLogFile(filename: string): void {
@@ -64,13 +66,14 @@ export class LoggingService implements LoggerService {
 
     fs.renameSync(filePath, rotatedFilePath);
 
-    const files = fs.readdirSync(this.logDir)
-      .filter(file => file.startsWith(filename))
+    const files = fs
+      .readdirSync(this.logDir)
+      .filter((file) => file.startsWith(filename))
       .sort()
       .reverse();
 
     if (files.length > 5) {
-      files.slice(5).forEach(file => {
+      files.slice(5).forEach((file) => {
         fs.unlinkSync(path.join(this.logDir, file));
       });
     }
@@ -115,7 +118,7 @@ export class LoggingService implements LoggerService {
       this.logger.error(message, trace, context);
       this.writeToFile(
         `[ERROR] ${context ? `[${context}] ` : ''}${message}${trace ? `\n${trace}` : ''}`,
-        true
+        true,
       );
     }
   }

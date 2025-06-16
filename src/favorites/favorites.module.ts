@@ -15,4 +15,4 @@ import { TracksModule } from '../tracks/tracks.module';
   providers: [FavoritesService],
   exports: [FavoritesService],
 })
-export class FavoritesModule {} 
+export class FavoritesModule {}

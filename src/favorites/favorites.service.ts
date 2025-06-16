@@ -1,4 +1,11 @@
-import { Injectable, NotFoundException, BadRequestException, UnprocessableEntityException, Inject, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  UnprocessableEntityException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { Favorites, FavoritesResponse } from './interfaces/favorites.interface';
 import { ArtistsService } from '../artists/artists.service';
 import { AlbumsService } from '../albums/albums.service';
@@ -22,22 +29,23 @@ export class FavoritesService {
   ) {}
 
   private isValidUUID(id: string): boolean {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return uuidRegex.test(id);
   }
 
   getAllFavorites(): FavoritesResponse {
     const artists = this.favorites.artists
-      .map(id => this.artistsService.getArtistById(id))
-      .filter(artist => artist !== null);
-    
+      .map((id) => this.artistsService.getArtistById(id))
+      .filter((artist) => artist !== null);
+
     const albums = this.favorites.albums
-      .map(id => this.albumsService.getAlbumById(id))
-      .filter(album => album !== null);
-    
+      .map((id) => this.albumsService.getAlbumById(id))
+      .filter((album) => album !== null);
+
     const tracks = this.favorites.tracks
-      .map(id => this.tracksService.getTrackById(id))
-      .filter(track => track !== null);
+      .map((id) => this.tracksService.getTrackById(id))
+      .filter((track) => track !== null);
 
     return { artists, albums, tracks };
   }
@@ -164,4 +172,4 @@ export class FavoritesService {
       this.favorites.artists.splice(index, 1);
     }
   }
-} 
+}

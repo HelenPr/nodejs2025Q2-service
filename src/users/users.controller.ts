@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
@@ -20,7 +30,9 @@ export class UsersController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async createUser(@Body() createUserDto: CreateUserDto): Promise<UserResponse> {
+  async createUser(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<UserResponse> {
     return this.usersService.createUser(createUserDto);
   }
 
@@ -37,4 +49,4 @@ export class UsersController {
   async deleteUser(@Param('id') id: string): Promise<void> {
     await this.usersService.deleteUser(id);
   }
-} 
+}

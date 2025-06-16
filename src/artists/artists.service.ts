@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Artist } from './interfaces/artist.interface';
 import { CreateArtistDto } from './dto/create-artist.dto';
@@ -9,7 +13,8 @@ export class ArtistsService {
   constructor(private prisma: PrismaService) {}
 
   private isValidUUID(id: string): boolean {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return uuidRegex.test(id);
   }
 
@@ -35,7 +40,7 @@ export class ArtistsService {
 
   async createArtist(createArtistDto: CreateArtistDto): Promise<Artist> {
     const { name, grammy } = createArtistDto;
-    
+
     return this.prisma.artist.create({
       data: {
         name,
@@ -44,7 +49,10 @@ export class ArtistsService {
     });
   }
 
-  async updateArtist(id: string, updateArtistDto: UpdateArtistDto): Promise<Artist> {
+  async updateArtist(
+    id: string,
+    updateArtistDto: UpdateArtistDto,
+  ): Promise<Artist> {
     if (!this.isValidUUID(id)) {
       throw new BadRequestException('Invalid artist ID format');
     }
@@ -81,4 +89,4 @@ export class ArtistsService {
       throw error;
     }
   }
-} 
+}

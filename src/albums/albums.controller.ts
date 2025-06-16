@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { AlbumsService } from './albums.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
@@ -37,4 +47,4 @@ export class AlbumsController {
   async deleteAlbum(@Param('id') id: string): Promise<void> {
     await this.albumsService.deleteAlbum(id);
   }
-} 
+}

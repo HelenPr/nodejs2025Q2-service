@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { Track } from './interfaces/track.interface';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
@@ -15,19 +21,22 @@ export class TracksService {
   ) {}
 
   private isValidUUID(id: string): boolean {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return uuidRegex.test(id);
   }
 
   async getAllTracks(): Promise<Track[]> {
     const tracks = await this.prisma.track.findMany();
-    return tracks.map((track): Track => ({
-      id: track.id,
-      name: track.name,
-      artistId: track.artistId,
-      albumId: track.albumId,
-      duration: track.duration,
-    }));
+    return tracks.map(
+      (track): Track => ({
+        id: track.id,
+        name: track.name,
+        artistId: track.artistId,
+        albumId: track.albumId,
+        duration: track.duration,
+      }),
+    );
   }
 
   async getTrackById(id: string): Promise<Track> {
@@ -54,7 +63,7 @@ export class TracksService {
 
   async createTrack(createTrackDto: CreateTrackDto): Promise<Track> {
     const { name, artistId, albumId, duration } = createTrackDto;
-    
+
     const track = await this.prisma.track.create({
       data: {
         name,
@@ -73,7 +82,10 @@ export class TracksService {
     };
   }
 
-  async updateTrack(id: string, updateTrackDto: UpdateTrackDto): Promise<Track> {
+  async updateTrack(
+    id: string,
+    updateTrackDto: UpdateTrackDto,
+  ): Promise<Track> {
     if (!this.isValidUUID(id)) {
       throw new BadRequestException('Invalid track ID format');
     }
@@ -97,7 +109,10 @@ export class TracksService {
         duration: track.duration,
       };
     } catch (error: unknown) {
-      if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
         throw new NotFoundException('Track not found');
       }
       throw error;
@@ -115,7 +130,10 @@ export class TracksService {
       });
       await this.favoritesService.handleTrackDeletion(id);
     } catch (error: unknown) {
-      if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
         throw new NotFoundException('Track not found');
       }
       throw error;
@@ -135,4 +153,4 @@ export class TracksService {
       data: { albumId: null },
     });
   }
-} 
+}

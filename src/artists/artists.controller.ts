@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ArtistsService } from './artists.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
@@ -20,7 +30,9 @@ export class ArtistsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async createArtist(@Body() createArtistDto: CreateArtistDto): Promise<Artist> {
+  async createArtist(
+    @Body() createArtistDto: CreateArtistDto,
+  ): Promise<Artist> {
     return this.artistsService.createArtist(createArtistDto);
   }
 
@@ -37,4 +49,4 @@ export class ArtistsController {
   async deleteArtist(@Param('id') id: string): Promise<void> {
     await this.artistsService.deleteArtist(id);
   }
-} 
+}

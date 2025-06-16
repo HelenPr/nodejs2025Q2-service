@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Delete, Param, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Param,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
 import { FavoritesResponse } from './interfaces/favorites.interface';
 
@@ -46,4 +54,4 @@ export class FavoritesController {
   removeArtistFromFavorites(@Param('id') id: string): void {
     this.favoritesService.removeArtistFromFavorites(id);
   }
-} 
+}

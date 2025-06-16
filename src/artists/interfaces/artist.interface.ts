@@ -5,4 +5,4 @@ export interface Artist {
   version: number;
   createdAt: Date;
   updatedAt: Date;
-} 
+}

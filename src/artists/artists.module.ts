@@ -10,4 +10,4 @@ import { PrismaService } from '../prisma/prisma.service';
   providers: [ArtistsService, PrismaService],
   exports: [ArtistsService],
 })
-export class ArtistsModule {} 
+export class ArtistsModule {}

@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Album } from './interfaces/album.interface';
 import { CreateAlbumDto } from './dto/create-album.dto';
@@ -14,7 +20,8 @@ export class AlbumsService {
   ) {}
 
   private isValidUUID(id: string): boolean {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return uuidRegex.test(id);
   }
 
@@ -47,7 +54,7 @@ export class AlbumsService {
 
   async createAlbum(createAlbumDto: CreateAlbumDto): Promise<Album> {
     const { name, year, artistId } = createAlbumDto;
-    
+
     return this.prisma.album.create({
       data: {
         name,
@@ -60,7 +67,10 @@ export class AlbumsService {
     });
   }
 
-  async updateAlbum(id: string, updateAlbumDto: UpdateAlbumDto): Promise<Album> {
+  async updateAlbum(
+    id: string,
+    updateAlbumDto: UpdateAlbumDto,
+  ): Promise<Album> {
     if (!this.isValidUUID(id)) {
       throw new BadRequestException('Invalid album ID format');
     }
@@ -109,4 +119,4 @@ export class AlbumsService {
       data: { artistId: null },
     });
   }
-} 
+}

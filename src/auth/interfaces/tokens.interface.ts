@@ -6,4 +6,4 @@ export interface Tokens {
 export interface JwtPayload {
   userId: string;
   login: string;
-} 
+}

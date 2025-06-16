@@ -4,4 +4,4 @@ export class RefreshDto {
   @IsString()
   @IsNotEmpty()
   refreshToken: string;
-} 
+}
