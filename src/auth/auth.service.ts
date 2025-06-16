@@ -1,4 +1,5 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
@@ -12,6 +13,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async signup(signupDto: SignupDto): Promise<void> {
@@ -24,7 +26,8 @@ export class AuthService {
       throw new ConflictException('User with this login already exists');
     }
 
-    await this.usersService.createUser({ login, password });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await this.usersService.createUser({ login, password: hashedPassword });
   }
 
   async login(loginDto: LoginDto): Promise<Tokens> {
@@ -49,7 +52,9 @@ export class AuthService {
     const { refreshToken } = refreshDto;
 
     try {
-      const payload = this.verifyRefreshToken(refreshToken);
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(refreshToken, {
+        secret: process.env.JWT_REFRESH_SECRET,
+      });
       
       return this.generateTokens(payload.userId, payload.login);
     } catch (error) {
@@ -57,11 +62,11 @@ export class AuthService {
     }
   }
 
-  private generateTokens(userId: string, login: string): Tokens {
+  private async generateTokens(userId: string, login: string): Promise<Tokens> {
     const payload: JwtPayload = { userId, login };
 
-    const accessToken = this.generateAccessToken(payload);
-    const refreshToken = this.generateRefreshToken(payload);
+    const accessToken = await this.generateAccessToken(payload);
+    const refreshToken = await this.generateRefreshToken(payload);
 
     return {
       accessToken,
@@ -69,26 +74,17 @@ export class AuthService {
     };
   }
 
-  private generateAccessToken(payload: JwtPayload): string {
-    const secret = process.env.JWT_ACCESS_SECRET;
-    const expiresIn = process.env.JWT_ACCESS_EXPIRATION || '15m';
-
-    return `access_${payload.userId}_${payload.login}`;
+  private async generateAccessToken(payload: JwtPayload): Promise<string> {
+    return this.jwtService.signAsync(payload, {
+      secret: process.env.JWT_ACCESS_SECRET,
+      expiresIn: process.env.JWT_ACCESS_EXPIRATION || '15m',
+    });
   }
 
-  private generateRefreshToken(payload: JwtPayload): string {
-    const secret = process.env.JWT_REFRESH_SECRET;
-    const expiresIn = process.env.JWT_REFRESH_EXPIRATION || '7d';
-
-    return `refresh_${payload.userId}_${payload.login}`;
-  }
-
-  private verifyRefreshToken(token: string): JwtPayload {
-    if (!token.startsWith('refresh_')) {
-      throw new Error('Invalid refresh token');
-    }
-
-    const [, userId, login] = token.split('_');
-    return { userId, login };
+  private async generateRefreshToken(payload: JwtPayload): Promise<string> {
+    return this.jwtService.signAsync(payload, {
+      secret: process.env.JWT_REFRESH_SECRET,
+      expiresIn: process.env.JWT_REFRESH_EXPIRATION || '7d',
+    });
   }
 } 
