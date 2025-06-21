@@ -79,6 +79,18 @@ npm run lint
 npm run format
 ```
 
+### env
+
+env file should contain
+
+```
+JWT_ACCESS_SECRET="test-access-secret-key"
+JWT_REFRESH_SECRET="test-refresh-secret-key"
+JWT_ACCESS_EXPIRATION=15m
+JWT_REFRESH_EXPIRATION=7d
+```
+
+
 ### Debugging in VSCode
 
 Press <kbd>F5</kbd> to debug.
