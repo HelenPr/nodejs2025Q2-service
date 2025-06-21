@@ -27,6 +27,20 @@ After starting the app on port (4000 as default) you can open
 in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
 For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
+OR installing without NPM
+
+## Run containers in Docker
+
+```
+docker-compose up --build
+```
+
+## Stop and remove containers
+
+```
+docker-compose down
+```
+
 ## Testing
 
 After application running open new terminal and enter:
@@ -64,6 +78,18 @@ npm run lint
 ```
 npm run format
 ```
+
+### env
+
+env file should contain
+
+```
+JWT_ACCESS_SECRET="test-access-secret-key"
+JWT_REFRESH_SECRET="test-refresh-secret-key"
+JWT_ACCESS_EXPIRATION=15m
+JWT_REFRESH_EXPIRATION=7d
+```
+
 
 ### Debugging in VSCode
 
